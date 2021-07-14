@@ -42,4 +42,8 @@ fi
 [[ -e /usr/X11 ]] || ln -s /opt/X11 /usr/X11
 [[ -e /usr/X11R6 ]] || ln -s /opt/X11 /usr/X11R6
 
+# Add X11 to default path for user apps
+PathEnvironmentVariable="$(defaults read /var/db/com.apple.xpc.launchd/config/user.plist PathEnvironmentVariable)"
+launchctl config user path "${PathEnvironmentVariable:=/usr/bin:/bin:/usr/sbin:/sbin}:/usr/X11/bin"
+
 exit 0
