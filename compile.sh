@@ -374,7 +374,7 @@ do_autotools_build() {
     done
 
     sudo ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
-    sudo ditto "${DESTDIR}.lipo.fat" /
+    #sudo ditto "${DESTDIR}.lipo.fat" /
 
     # Cleanup the universal hack directories
     sudo rm -rf "${DESTDIR}".lipo.*
@@ -509,7 +509,7 @@ do_meson_build() {
     fi
 
     sudo ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
-    sudo ditto "${DESTDIR}.lipo.fat" /
+    #sudo ditto "${DESTDIR}.lipo.fat" /
 
     # Cleanup the universal hack directories
     sudo rm -rf "${DESTDIR}".lipo.*
@@ -579,7 +579,7 @@ do_cmake_build() {
     fi
 
     sudo ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
-    sudo ditto "${DESTDIR}.lipo.fat" /
+    #sudo ditto "${DESTDIR}.lipo.fat" /
 
     # Cleanup the universal hack directories
     sudo rm -rf "${DESTDIR}".lipo.*
@@ -882,15 +882,15 @@ fi
 
 # Install our base configs and other misc content
 sudo ditto ${BASE_DIR}/base ${DESTDIR}
-sudo ditto ${BASE_DIR}/base /
+#sudo ditto ${BASE_DIR}/base /
 
 if [ -n "${SANITIZER_CONFIGS}" ] ; then
     sudo install -o root -g wheel -m 0755 -d ${DESTDIR}${SANITIZER_LIB_DIR}
-    sudo install -o root -g wheel -m 0755 -d ${SANITIZER_LIB_DIR}
+    #sudo install -o root -g wheel -m 0755 -d ${SANITIZER_LIB_DIR}
 
     for dylib in ${SANITIZER_LIBS} ; do
         sudo install -o root -g wheel -m 0755 ${SANITIZER_LIB_DIR_SRC}/${dylib} ${DESTDIR}${SANITIZER_LIB_DIR}
-        sudo install -o root -g wheel -m 0755 ${SANITIZER_LIB_DIR_SRC}/${dylib} ${SANITIZER_LIB_DIR}
+        #sudo install -o root -g wheel -m 0755 ${SANITIZER_LIB_DIR_SRC}/${dylib} ${SANITIZER_LIB_DIR}
     done
 fi
 
@@ -915,8 +915,8 @@ sudo ditto ${DESTDIR}.Sparkle ${DESTDIR}
 # ditto: //Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Base.lproj/SUUpdateAlert.nib: Is a directory
 # ditto: //Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/Resources/SUStatus.nib: Is a directory
 # ditto: //Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/SUStatus.nib: Is a directory
-sudo rm -rf /Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework
-sudo ditto ${DESTDIR}.Sparkle /
+#sudo rm -rf /Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework
+#sudo ditto ${DESTDIR}.Sparkle /
 
 # Bincompat versions of libpng
 do_autotools_build src/libpng/libpng12 LIB_BINCOMPAT_2_7
@@ -979,8 +979,8 @@ do_autotools_build src/xorg/lib/libXt-flatnamespace LIB_BINCOMPAT_2_7
 do_autotools_build src/xorg/lib/libXt7-stub LIB_BINCOMPAT_2_7
 sudo install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/lib/flat_namespace
 sudo mv ${DESTDIR}${PREFIX}/lib/libXt.6.dylib ${DESTDIR}${PREFIX}/lib/flat_namespace
-sudo install -o root -g wheel -m 0755 -d ${PREFIX}/lib/flat_namespace
-sudo mv ${PREFIX}/lib/libXt.6.dylib ${PREFIX}/lib/flat_namespace
+#sudo install -o root -g wheel -m 0755 -d ${PREFIX}/lib/flat_namespace
+#sudo mv ${PREFIX}/lib/libXt.6.dylib ${PREFIX}/lib/flat_namespace
 
 do_autotools_build src/xorg/lib/libXt LIB
 do_autotools_build src/xorg/lib/libXmu LIB
@@ -1158,9 +1158,9 @@ sudo install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/bin
 sudo install -o root -g wheel -m 0755 glxinfo ${DESTDIR}${PREFIX}/bin
 sudo install -o root -g wheel -m 0755 glxgears ${DESTDIR}${PREFIX}/bin
 
-sudo install -o root -g wheel -m 0755 -d ${PREFIX}/bin
-sudo install -o root -g wheel -m 0755 glxinfo ${PREFIX}/bin
-sudo install -o root -g wheel -m 0755 glxgears ${PREFIX}/bin
+#sudo install -o root -g wheel -m 0755 -d ${PREFIX}/bin
+#sudo install -o root -g wheel -m 0755 glxinfo ${PREFIX}/bin
+#sudo install -o root -g wheel -m 0755 glxgears ${PREFIX}/bin
 
 do_meson_build src/cairo LIB
 
@@ -1176,8 +1176,8 @@ do_meson_build src/xquartz/xserver EXEC
 # We want X to be Xquartz by default
 sudo rm -f ${DESTDIR}${PREFIX}/bin/X
 sudo ln -s Xquartz ${DESTDIR}${PREFIX}/bin/X
-sudo rm -f ${PREFIX}/bin/X
-sudo ln -s Xquartz ${PREFIX}/bin/X
+#sudo rm -f ${PREFIX}/bin/X
+#sudo ln -s Xquartz ${PREFIX}/bin/X
 
 # TODO: Do we want to do anything with the tests?
 #do_meson_build src/xorg/test/rendercheck EXEC

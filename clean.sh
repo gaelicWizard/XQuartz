@@ -38,7 +38,7 @@ if [ "$submodules_only" -eq 1 ] ; then
     exit 0
 fi
 
-sudo rm -rf /Applications/Utilities/XQuartz.app /opt/X11
+#sudo rm -rf /Applications/Utilities/XQuartz.app /opt/X11
 sudo rm -rf products
 rm -rf XQuartz-*.d*
 rm -rf XQuartz-*.pkg*
