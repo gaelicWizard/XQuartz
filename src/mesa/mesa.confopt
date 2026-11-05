@@ -1,5 +1,5 @@
 -Dc_std=c11 \
 -Degl=disabled \
--Dllvm=enabled \
+-Dllvm=disabled \
 -Dshared-llvm=disabled \
--Dgallium-drivers=softpipe,llvmpipe
+-Dgallium-drivers=softpipe

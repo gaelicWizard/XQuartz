@@ -901,7 +901,6 @@ if [ -n "${SANITIZER_CONFIGS}" ] ; then
 fi
 
 # Build LLVM (arm64/x86_64 only; llvmpipe is not built for the i386 slice, so LLVM isn't needed there)
-do_cmake_build src/llvm-project LLVM llvm
 
 # Build Sparkle
 cd ${BASE_DIR}/src/Sparkle
