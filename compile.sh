@@ -76,6 +76,9 @@ SDKROOT_i386=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
 
 SDKROOT_XQUARTZ_OVERLAY=/Library/Developer/CommandLineTools/SDKs/XQuartzUpdates.sdk
 
+#export DEVELOPER_DIR="/Applications/OlderXcodes/Xcode-26.6.0.app/Contents/Developer"
+#export SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk"
+
 SPARKLE_PUBLIC_EDKEY="pgjiBdCBJJg1rSqFR3GtMPXaRKcU9Jjeh6OqfkH4j+8="
 if [ "${APPLICATION_VERSION_STRING}" != "${APPLICATION_VERSION_STRING/alpha/}" ] ; then
     SPARKLE_FEED_URL="https://www.xquartz.org/releases/sparkle-r1/alpha.xml"
