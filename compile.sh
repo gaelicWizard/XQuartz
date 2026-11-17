@@ -362,9 +362,9 @@ do_autotools_build() {
     case ${PROJECT} in
     libXaw8|libXp|libXevie|libXfontcache|libxkbui|libXTrap|libXxf86misc)
         # These projects exist for bincompat reasons only.  Only ship libraries
-        sudo rm -rf "${DESTDIR}.lipo.fat${PREFIX}/"{bin,include,share,lib/pkgconfig}
+        rm -rf "${DESTDIR}.lipo.fat${PREFIX}/"{bin,include,share,lib/pkgconfig}
         for f in ${DESTDIR}.lipo.fat${PREFIX}/lib/* ; do
-            [ -h "${f}" ] && sudo rm "${f}"
+            [ -h "${f}" ] && rm "${f}"
         done
         ;;
     esac
@@ -373,16 +373,16 @@ do_autotools_build() {
     find "${DESTDIR}.lipo.fat" -type f | while read file ; do
         if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
             if has ${config} ${SANITIZER_CONFIGS} ; then
-                sudo install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
+                install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
             fi
         fi
     done
 
-    sudo ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
+    ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
     #sudo ditto "${DESTDIR}.lipo.fat" /
 
     # Cleanup the universal hack directories
-    sudo rm -rf "${DESTDIR}".lipo.*
+    rm -rf "${DESTDIR}".lipo.*
 }
 
 do_autotools_build_sub() {
@@ -402,10 +402,10 @@ do_autotools_build_sub() {
 
     ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} || die "Could not make in $(pwd)"
 
-    sudo ${MAKE} install DESTDIR=${DESTDIR}.lipo.${set} || die "Could not make install in $(pwd)"
+    ${MAKE} install DESTDIR=${DESTDIR}.lipo.${set} || die "Could not make install in $(pwd)"
 
     # Prune the .la files that we don't want
-    sudo rm -f ${DESTDIR}.lipo.${set}${PREFIX}/lib/*.la
+    rm -f ${DESTDIR}.lipo.${set}${PREFIX}/lib/*.la
 }
 
 # Lipo out multiple ${DESTDIR}.<set> into ${DESTDIR}.fat
@@ -430,8 +430,8 @@ do_lipo() {
             if /usr/bin/file "${file}" | egrep -q "(Mach-O|ar archive)" ; then
                 for arch in $(lipo -archs "${file}") ; do
                     if ! has ${arch} ${archs} ; then
-                        sudo lipo -remove ${arch} -output ${file}.lipo_result ${file} || die "lipo failed to remove ${arch} from ${file}"
-                        sudo mv ${file}.lipo_result ${file} || die "failed to move lipo result back"
+                        lipo -remove ${arch} -output ${file}.lipo_result ${file} || die "lipo failed to remove ${arch} from ${file}"
+                        mv ${file}.lipo_result ${file} || die "failed to move lipo result back"
                     fi
                 done
             fi
@@ -440,7 +440,7 @@ do_lipo() {
     done
 
     # Now lipo everything together
-    sudo cp -a "${DESTDIR}.lipo.$(first ${sets})" "${DESTDIR}.lipo.fat"
+    cp -a "${DESTDIR}.lipo.$(first ${sets})" "${DESTDIR}.lipo.fat"
 
     pushd "${DESTDIR}.lipo.fat"
     find . -type f | while read file ; do
@@ -449,7 +449,7 @@ do_lipo() {
             for set in ${sets} ; do
                 input_files="${input_files} ${DESTDIR}.lipo.${set}/${file}"
             done
-            sudo lipo -create -output "${file}" ${input_files} || die "lipo failed to create ${file}"
+            lipo -create -output "${file}" ${input_files} || die "lipo failed to create ${file}"
         fi
     done
 }
@@ -483,7 +483,7 @@ do_meson_build() {
         setup_environment ${config} ${arch} || die "Failed to setup environment"
         meson build.${arch} -Dprefix=${PREFIX} $(eval echo $(cat "$(find_confopt_file "${project_dir}" ${arch})")) --cross-file ${meson_cross_dir}/${arch}-darwin-xquartz || die "Could not configure in $(pwd)"
         ninja --verbose -C build.${arch} || die "Failed to compile in $(pwd)"
-        sudo DESTDIR="${DESTDIR}.lipo.${arch}" ninja --verbose -C build.${arch} install || die "Failed to install in $(pwd)"
+        DESTDIR="${DESTDIR}.lipo.${arch}" ninja --verbose -C build.${arch} install || die "Failed to install in $(pwd)"
 
 
         # adjust LC_RPATHs
@@ -492,18 +492,18 @@ do_meson_build() {
                 if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
 
                     # remove LC_RPATHs that the compiler adds for sanitizers (we set our own)
-                    sudo install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
+                    install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
 
                 fi
             done
         fi
 
         # Prune the .la files that we don't want
-        sudo rm -f "${DESTDIR}.lipo.${arch}${PREFIX}/lib"/*.la
+        rm -f "${DESTDIR}.lipo.${arch}${PREFIX}/lib"/*.la
     done
 
     if [ "$(last ${archs})" == "$(first ${archs})" ] ; then
-        sudo cp -a "${DESTDIR}.lipo.$(first ${archs})" "${DESTDIR}.lipo.fat"
+        cp -a "${DESTDIR}.lipo.$(first ${archs})" "${DESTDIR}.lipo.fat"
     else
         local lipo_args=""
         for arch in ${archs} ; do
@@ -512,11 +512,11 @@ do_meson_build() {
         do_lipo ${lipo_args}
     fi
 
-    sudo ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
+    ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
     #sudo ditto "${DESTDIR}.lipo.fat" /
 
     # Cleanup the universal hack directories
-    sudo rm -rf "${DESTDIR}".lipo.*
+    rm -rf "${DESTDIR}".lipo.*
 }
 
 do_cmake_build() {
@@ -565,14 +565,14 @@ do_cmake_build() {
               $(eval echo $(cat "$(find_confopt_file "${project_dir}" ${arch})")) "../${source_subdir}" || die "Could not configure in $(pwd)"
 
         ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} VERBOSE=1 || die "Could not make in $(pwd)"
-        sudo ${MAKE} install DESTDIR=${DESTDIR}.lipo.${arch} VERBOSE=1 || die "Could not make install in $(pwd)"
+        ${MAKE} install DESTDIR=${DESTDIR}.lipo.${arch} VERBOSE=1 || die "Could not make install in $(pwd)"
 
         # Prune the .la files that we don't want
-        sudo rm -f "${DESTDIR}.lipo.${arch}${PREFIX}/lib"/*.la
+        rm -f "${DESTDIR}.lipo.${arch}${PREFIX}/lib"/*.la
     done
 
     if [ "$(last ${archs})" == "$(first ${archs})" ] ; then
-        sudo cp -a "${DESTDIR}.lipo.$(first ${archs})" "${DESTDIR}.lipo.fat"
+        cp -a "${DESTDIR}.lipo.$(first ${archs})" "${DESTDIR}.lipo.fat"
     else
         local lipo_args=""
         for arch in ${archs} ; do
@@ -581,11 +581,11 @@ do_cmake_build() {
         do_lipo ${lipo_args}
     fi
 
-    sudo ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
+    ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
     #sudo ditto "${DESTDIR}.lipo.fat" /
 
     # Cleanup the universal hack directories
-    sudo rm -rf "${DESTDIR}".lipo.*
+    rm -rf "${DESTDIR}".lipo.*
 }
 
 do_checks() {
@@ -633,47 +633,47 @@ do_checks() {
 }
 
 do_removals() {
-    sudo rm -rf ${DESTDIR}${PREFIX}/include/X11/PM
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/evieproto.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapbits.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86rushstr.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xcalibrateproto.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86mscstr.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapddmi.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/lgewire.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/Xeviestr.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtraplib.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/windowswm.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/fontcachstr.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86misc.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/fontcache.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapemacros.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/Printstr.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/Print.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/windowswmstr.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapproto.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86rush.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtraplibp.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xcalibratewire.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapdi.h
-    sudo rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/fontcacheP.h
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/trapproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xcalibrateproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xproxymngproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/fontcacheproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/evieproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/printproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xf86rushproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/lg3dproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/windowswmproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xf86miscproto.pc
-    sudo rm -f ${DESTDIR}${PREFIX}/share/man/man7/Xprint.7
+    rm -rf ${DESTDIR}${PREFIX}/include/X11/PM
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/evieproto.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapbits.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86rushstr.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xcalibrateproto.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86mscstr.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapddmi.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/lgewire.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/Xeviestr.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtraplib.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/windowswm.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/fontcachstr.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86misc.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/fontcache.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapemacros.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/Printstr.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/Print.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/windowswmstr.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapproto.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xf86rush.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtraplibp.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xcalibratewire.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/xtrapdi.h
+    rm -f ${DESTDIR}${PREFIX}/include/X11/extensions/fontcacheP.h
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/trapproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xcalibrateproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xproxymngproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/fontcacheproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/evieproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/printproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xf86rushproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/lg3dproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/windowswmproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/pkgconfig/xf86miscproto.pc
+    rm -f ${DESTDIR}${PREFIX}/share/man/man7/Xprint.7
 
     # I don't see a way to turn this off in mesa/glu
-    sudo rm -f ${DESTDIR}${PREFIX}/lib/libGLU.a
+    rm -f ${DESTDIR}${PREFIX}/lib/libGLU.a
 
     # Don't ship llvm or any other build support
-    sudo rm -rf ${DESTDIR}/opt/buildX11*
+    rm -rf ${DESTDIR}/opt/buildX11*
 }
 
 do_strip_sign_dsyms() {
@@ -685,8 +685,8 @@ do_strip_sign_dsyms() {
         sudo rm -rf "${SYM_ROOT}"
     fi
 
-    sudo ditto "${DESTDIR}" "${PKG_ROOT}"
-    sudo mkdir -p "${SYM_ROOT}"
+    ditto "${DESTDIR}" "${PKG_ROOT}"
+    mkdir -p "${SYM_ROOT}"
 
     sudo chown -R root:wheel "${PKG_ROOT}"
 
@@ -882,15 +882,15 @@ if [ ! -f submodules.initialized ] ; then
 fi
 
 # Install our base configs and other misc content
-sudo ditto ${BASE_DIR}/base ${DESTDIR}
+ditto ${BASE_DIR}/base ${DESTDIR}
 #sudo ditto ${BASE_DIR}/base /
 
 if [ -n "${SANITIZER_CONFIGS}" ] ; then
-    sudo install -o root -g wheel -m 0755 -d ${DESTDIR}${SANITIZER_LIB_DIR}
+    install -o root -g wheel -m 0755 -d ${DESTDIR}${SANITIZER_LIB_DIR}
     #sudo install -o root -g wheel -m 0755 -d ${SANITIZER_LIB_DIR}
 
     for dylib in ${SANITIZER_LIBS} ; do
-        sudo install -o root -g wheel -m 0755 ${SANITIZER_LIB_DIR_SRC}/${dylib} ${DESTDIR}${SANITIZER_LIB_DIR}
+        install -o root -g wheel -m 0755 ${SANITIZER_LIB_DIR_SRC}/${dylib} ${DESTDIR}${SANITIZER_LIB_DIR}
         #sudo install -o root -g wheel -m 0755 ${SANITIZER_LIB_DIR_SRC}/${dylib} ${SANITIZER_LIB_DIR}
     done
 fi
@@ -909,7 +909,7 @@ xcodebuild install -configuration Release \
     DEAD_CODE_STRIPPING=NO \
     GCC_GENERATE_DEBUGGING_SYMBOLS=YES
 
-sudo ditto ${DESTDIR}.Sparkle ${DESTDIR}
+ditto ${DESTDIR}.Sparkle ${DESTDIR}
 
 # Handle flattened nibs
 # ditto: //Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Base.lproj/SUAutomaticUpdateAlert.nib: Is a directory
@@ -978,8 +978,8 @@ do_autotools_build src/xorg/lib/libSM LIB
 # Bincompat
 do_autotools_build src/xorg/lib/libXt-flatnamespace LIB_BINCOMPAT_2_7
 do_autotools_build src/xorg/lib/libXt7-stub LIB_BINCOMPAT_2_7
-sudo install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/lib/flat_namespace
-sudo mv ${DESTDIR}${PREFIX}/lib/libXt.6.dylib ${DESTDIR}${PREFIX}/lib/flat_namespace
+install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/lib/flat_namespace
+mv ${DESTDIR}${PREFIX}/lib/libXt.6.dylib ${DESTDIR}${PREFIX}/lib/flat_namespace
 #sudo install -o root -g wheel -m 0755 -d ${PREFIX}/lib/flat_namespace
 #sudo mv ${PREFIX}/lib/libXt.6.dylib ${PREFIX}/lib/flat_namespace
 
@@ -1155,9 +1155,9 @@ ${CC} ${CPPFLAGS} ${CFLAGS} -c glxgears.c
 ${CC} ${LDFLAGS} glxinfo.o glinfo_common.o -lGL -lX11 -o glxinfo
 ${CC} ${LDFLAGS} glxgears.o -lGL -lX11 -o glxgears
 
-sudo install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/bin
-sudo install -o root -g wheel -m 0755 glxinfo ${DESTDIR}${PREFIX}/bin
-sudo install -o root -g wheel -m 0755 glxgears ${DESTDIR}${PREFIX}/bin
+install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/bin
+install -o root -g wheel -m 0755 glxinfo ${DESTDIR}${PREFIX}/bin
+install -o root -g wheel -m 0755 glxgears ${DESTDIR}${PREFIX}/bin
 
 #sudo install -o root -g wheel -m 0755 -d ${PREFIX}/bin
 #sudo install -o root -g wheel -m 0755 glxinfo ${PREFIX}/bin
@@ -1175,8 +1175,8 @@ do_autotools_build src/xorg/driver/xf86-video-nested EXEC
 do_meson_build src/xquartz/xserver EXEC
 
 # We want X to be Xquartz by default
-sudo rm -f ${DESTDIR}${PREFIX}/bin/X
-sudo ln -s Xquartz ${DESTDIR}${PREFIX}/bin/X
+rm -f ${DESTDIR}${PREFIX}/bin/X
+ln -s Xquartz ${DESTDIR}${PREFIX}/bin/X
 #sudo rm -f ${PREFIX}/bin/X
 #sudo ln -s Xquartz ${PREFIX}/bin/X
 
