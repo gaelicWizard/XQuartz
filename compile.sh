@@ -177,10 +177,10 @@ export FOP_OPTS="-Xmx2048m -Djava.awt.headless=true"
 export GROFF=${BUILD_TOOLS_PREFIX_STD}/bin/groff
 export PS2PDF=${BUILD_TOOLS_PREFIX_STD}/bin/ps2pdf
 
-export PATH="${PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-export PKG_CONFIG_PATH="${PREFIX}/share/pkgconfig:${PREFIX}/lib/pkgconfig"
+export PATH="${DESTDIR}${PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PKG_CONFIG_PATH="${DESTDIR}${PREFIX}/share/pkgconfig:${DESTDIR}${PREFIX}/lib/pkgconfig"
 export FONTPATH="${PREFIX}/share/fonts/misc/,${PREFIX}/share/fonts/TTF/,${PREFIX}/share/fonts/OTF,${PREFIX}/share/fonts/Type1/,${PREFIX}/share/fonts/75dpi/:unscaled,${PREFIX}/share/fonts/100dpi/:unscaled,${PREFIX}/share/fonts/75dpi/,${PREFIX}/share/fonts/100dpi/,/Library/Fonts,${PREFIX}/share/system_fonts"
-export ACLOCAL="aclocal -I ${PREFIX}/share/aclocal -I ${BUILD_TOOLS_PREFIX_STD}/share/aclocal -I ${BUILD_TOOLS_PREFIX_STD}/share/gettext/m4"
+export ACLOCAL="aclocal -I ${DESTDIR}${PREFIX}/share/aclocal -I ${BUILD_TOOLS_PREFIX_STD}/share/aclocal -I ${BUILD_TOOLS_PREFIX_STD}/share/gettext/m4"
 
 die() {
     echo "${@}" >&2
@@ -252,9 +252,9 @@ setup_environment() {
         cpp_arch_flags="-arch i386"
     fi
 
-    export CPPFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${cpp_arch_flags} -I${PREFIX}/include -F${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks -DFAIL_HARD"
+    export CPPFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${cpp_arch_flags} -I${DESTDIR}${PREFIX}/include -F${DESTDIR}${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks -DFAIL_HARD"
     export CFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${arch_flags} ${OPT_CFLAGS} ${DEBUG_CFLAGS} ${HARDENING_CFLAGS} ${WARNING_CFLAGS}"
-    export LDFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${arch_flags} -L${PREFIX}/lib -F${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks"
+    export LDFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${arch_flags} -L${DESTDIR}${PREFIX}/lib -F${DESTDIR}${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks"
 
     if [[ -d "${SDKROOT_XQUARTZ_OVERLAY}" ]] ; then
         export CPPFLAGS="${CPPFLAGS} -I${SDKROOT_XQUARTZ_OVERLAY}/usr/include"
@@ -306,7 +306,8 @@ do_patches() {
 #
 # Postcondition:
 #   Object files are left in place.
-#   Content is installed to DESTDIR and the live filesystem.
+#   Content is installed to DESTDIR 
+#disabled: and the live filesystem.
 #
 # Options:
 #   SCAN_BUILD can be set for static analysis
