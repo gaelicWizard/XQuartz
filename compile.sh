@@ -483,7 +483,7 @@ do_meson_build() {
     # https://github.com/mesonbuild/meson/issues/8206
     for arch in ${archs} ; do
         setup_environment ${config} ${arch} || die "Failed to setup environment"
-        meson build.${arch} -Dprefix=${PREFIX} $(eval echo $(cat "$(find_confopt_file "${project_dir}" ${arch})")) --cross-file ${meson_cross_dir}/${arch}-darwin-xquartz || die "Could not configure in $(pwd)"
+        meson build.${arch} -Dprefix=${PREFIX} -Dbuild.pkg_config_path="${PKG_CONFIG_PATH}" $(eval echo $(cat "$(find_confopt_file "${project_dir}" ${arch})")) --cross-file ${meson_cross_dir}/${arch}-darwin-xquartz || die "Could not configure in $(pwd)"
         ninja --verbose -C build.${arch} || die "Failed to compile in $(pwd)"
         DESTDIR="${DESTDIR}.lipo.${arch}" ninja --verbose -C build.${arch} install || die "Failed to install in $(pwd)"
 
