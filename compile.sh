@@ -250,6 +250,8 @@ setup_environment() {
     if has i386 ${archs} ; then
         sdkdir=${SDKROOT_i386}
         cpp_arch_flags="-arch i386"
+    else
+        sdkdir=$(xcrun --show-sdk-path)
     fi
 
     export CPPFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${cpp_arch_flags} -I${DESTDIR}${PREFIX}/include -F${DESTDIR}${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks -DFAIL_HARD"
