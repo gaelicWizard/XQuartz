@@ -323,7 +323,8 @@ do_autotools_build() {
 
     cd "${project_dir}" || die "Could not change directory to ${project_dir}"
 
-    export PATH="${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    export PATH
 
     PROJECT=$(basename $(pwd))
 
@@ -382,8 +383,6 @@ do_autotools_build() {
 
     # Cleanup the universal hack directories
     sudo rm -rf "${DESTDIR}".lipo.*
-
-    export PATH="${PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 }
 
 do_autotools_build_sub() {
@@ -466,7 +465,8 @@ do_meson_build() {
 
     cd "${project_dir}" || die "Could not change directory to ${project_dir}"
 
-    export PATH="${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    export PATH
 
     PROJECT=$(basename $(pwd))
 
@@ -517,8 +517,6 @@ do_meson_build() {
 
     # Cleanup the universal hack directories
     sudo rm -rf "${DESTDIR}".lipo.*
-
-    export PATH="${PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 }
 
 do_cmake_build() {
@@ -533,7 +531,8 @@ do_cmake_build() {
 
     cd "${project_dir}" || die "Could not change directory to ${project_dir}"
 
-    export PATH="${PREFIX}/bin:${BUILD_TOOLS_PREFIX_CMAKE}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_CMAKE}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    export PATH
 
     PROJECT=$(basename $(pwd))
 
@@ -587,8 +586,6 @@ do_cmake_build() {
 
     # Cleanup the universal hack directories
     sudo rm -rf "${DESTDIR}".lipo.*
-
-    export PATH="${PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 }
 
 do_checks() {
