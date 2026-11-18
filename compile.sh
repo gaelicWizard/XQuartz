@@ -990,7 +990,7 @@ mv ${DESTDIR}${PREFIX}/lib/libXt.6.dylib ${DESTDIR}${PREFIX}/lib/flat_namespace
 #sudo mv ${PREFIX}/lib/libXt.6.dylib ${PREFIX}/lib/flat_namespace
 
 do_autotools_build src/xorg/lib/libXt LIB
-do_autotools_build src/xorg/lib/libXmu LIB
+SKIP_AUTORECONF=NO do_autotools_build src/xorg/lib/libXmu LIB
 do_autotools_build src/xorg/lib/libXpm LIB
 
 # Bincompat
