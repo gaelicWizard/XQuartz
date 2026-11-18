@@ -568,6 +568,7 @@ do_cmake_build() {
               -DCMAKE_OSX_ARCHITECTURES="${cmake_archs}" \
               -DCMAKE_OSX_SYSROOT="${sdkdir}" \
               -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}" \
+			  -DCMAKE_PREFIX_PATH=""${DESTDIR}${PREFIX}"" \
               $(eval echo $(cat "$(find_confopt_file "${project_dir}" ${arch})")) "../${source_subdir}" || die "Could not configure in $(pwd)"
 
         ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} VERBOSE=1 || die "Could not make in $(pwd)"
