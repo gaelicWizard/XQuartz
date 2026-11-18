@@ -688,21 +688,19 @@ do_strip_sign_dsyms() {
     fi
 
     if [ -d "${SYM_ROOT}" ] ; then
-        sudo rm -rf "${SYM_ROOT}"
+        rm -rf "${SYM_ROOT}"
     fi
 
     ditto "${DESTDIR}" "${PKG_ROOT}"
     mkdir -p "${SYM_ROOT}"
 
-    sudo chown -R root:wheel "${PKG_ROOT}"
-
     find "${PKG_ROOT}/opt/X11" -type f | while read file ; do
         if /usr/bin/file "${file}" | grep -q "Mach-O" && /usr/bin/file "${file}" | grep -q -v "ar archive" ; then
-            sudo dsymutil --out="${SYM_ROOT}"/$(basename "${file}").dSYM "${file}"
-            sudo cp "${file}" "${SYM_ROOT}"
+            dsymutil --out="${SYM_ROOT}"/$(basename "${file}").dSYM "${file}"
+            cp "${file}" "${SYM_ROOT}"
 
             if [ -z "${SANITIZER_CONFIGS}" ] ; then
-                sudo "${STRIP}" -S "${file}"
+                "${STRIP}" -S "${file}"
             fi
 
             # mesa's llvmpipe driver JITs shaders at runtime, so the GL clients we ship need to opt out of
@@ -721,11 +719,11 @@ do_strip_sign_dsyms() {
 
     find "${PKG_ROOT}/Applications" -type f | while read file ; do
         if /usr/bin/file "${file}" | grep -q "Mach-O" && /usr/bin/file "${file}" | grep -q -v "ar archive" ; then
-            sudo dsymutil --out="${SYM_ROOT}"/$(basename "${file}").dSYM "${file}"
-            sudo cp "${file}" "${SYM_ROOT}"
+            dsymutil --out="${SYM_ROOT}"/$(basename "${file}").dSYM "${file}"
+            cp "${file}" "${SYM_ROOT}"
 
             if [ -z "${SANITIZER_CONFIGS}" ] ; then
-                sudo strip -S "${file}"
+                strip -S "${file}"
             fi
         fi
     done
@@ -747,6 +745,8 @@ do_pkg() {
     PKG_DISTRIBUTION_PLIST="${PKG_CONFIG_ROOT}"/XQuartzDistribution.plist
 
     PKG_OUTPUT="${BASE_DIR}"/XQuartz-${APPLICATION_VERSION_STRING}.pkg
+
+    sudo chown -R root:wheel "${PKG_ROOT}"
 
     # Initial configuration created like this and then manually edited:
     # pkgbuild --analyze --root "${DESTDIR}" "${PKG_COMPONENT_PLIST}"
