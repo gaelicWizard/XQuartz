@@ -179,6 +179,7 @@ export PS2PDF=${BUILD_TOOLS_PREFIX_STD}/bin/ps2pdf
 
 export PATH="${DESTDIR}${PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PKG_CONFIG_PATH="${DESTDIR}${PREFIX}/share/pkgconfig:${DESTDIR}${PREFIX}/lib/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR="${DESTDIR}"
 export FONTPATH="${PREFIX}/share/fonts/misc/,${PREFIX}/share/fonts/TTF/,${PREFIX}/share/fonts/OTF,${PREFIX}/share/fonts/Type1/,${PREFIX}/share/fonts/75dpi/:unscaled,${PREFIX}/share/fonts/100dpi/:unscaled,${PREFIX}/share/fonts/75dpi/,${PREFIX}/share/fonts/100dpi/,/Library/Fonts,${PREFIX}/share/system_fonts"
 export ACLOCAL="aclocal -I ${DESTDIR}${PREFIX}/share/aclocal -I ${BUILD_TOOLS_PREFIX_STD}/share/aclocal -I ${BUILD_TOOLS_PREFIX_STD}/share/gettext/m4"
 
