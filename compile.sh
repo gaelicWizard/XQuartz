@@ -1146,7 +1146,7 @@ do_autotools_build src/xorg/font/sun-misc LIB
 do_autotools_build src/xorg/font/winitzki-cyrillic LIB
 do_autotools_build src/xorg/font/xfree86-type1 LIB
 
-do_meson_build src/wayland EXEC
+#do_meson_build src/wayland EXEC
 
 do_meson_build src/mesa/mesa LIB
 do_meson_build src/mesa/glu LIB
