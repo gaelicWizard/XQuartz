@@ -923,10 +923,10 @@ ditto ${DESTDIR}.Sparkle ${DESTDIR}
 do_autotools_build src/libpng/libpng12 LIB_BINCOMPAT_2_7
 do_autotools_build src/libpng/libpng14 LIB_BINCOMPAT_2_7
 do_autotools_build src/libpng/libpng15 LIB_BINCOMPAT_2_7
-sudo rm -f {${DESTDIR}${PREFIX},${PREFIX}}/bin/libpng*-config
-sudo rm -f {${DESTDIR}${PREFIX},${PREFIX}}/lib/libpng1?.dylib
-sudo rm -f {${DESTDIR}${PREFIX},${PREFIX}}/lib/libpng12.0.*.dylib
-sudo rm -f {${DESTDIR}${PREFIX},${PREFIX}}/lib/libpng.3.*.0.dylib
+rm -f ${DESTDIR}${PREFIX}/bin/libpng*-config
+rm -f ${DESTDIR}${PREFIX}/lib/libpng1?.dylib
+rm -f ${DESTDIR}${PREFIX}/lib/libpng12.0.*.dylib
+rm -f ${DESTDIR}${PREFIX}/lib/libpng.3.*.0.dylib
 
 do_autotools_build src/libpng/libpng16 LIB
 
