@@ -71,7 +71,7 @@ CODESIGN_IDENTITY_PKG="Developer ID Installer: Apple Inc. - XQuartz (${CODESIGN_
 APPLICATION_VERSION=2.8.74
 APPLICATION_VERSION_STRING=2.8.7_rc1
 
-XCODE_i386=/Applications/OlderXcodes/Xcode-14.2.app
+XCODE_i386=/Applications/OlderXcodes/Xcode-14.2.0.app
 SDKROOT_i386=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
 
 SDKROOT_XQUARTZ_OVERLAY=/Library/Developer/CommandLineTools/SDKs/XQuartzUpdates.sdk
