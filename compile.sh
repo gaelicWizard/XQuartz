@@ -404,7 +404,7 @@ do_autotools_build_sub() {
 
     ${SCAN_BUILD} ./configure --prefix=${PREFIX} --disable-static --enable-docs --enable-devel-docs --enable-builddocs --with-doxygen --with-xmlto --with-fop $(eval echo $(cat "${confopt_file}")) || die "Could not configure in $(pwd)"
 
-    [[ "${SKIP_CLEAN}" == "YES" ]] || ${MAKE} clean || die "Unable to make clean in $(pwd)"
+    [[ "${SKIP_CLEAN}" == "YES" && "${set}" == "fat" ]] || ${MAKE} clean || die "Unable to make clean in $(pwd)"
 
     ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} || die "Could not make in $(pwd)"
 
