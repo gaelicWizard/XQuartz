@@ -359,7 +359,7 @@ do_autotools_build() {
         # don't also need an arm64 slice (eg: legacy bincompat dylibs)
         do_autotools_build_sub fat "$(find_confopt_file "${project_dir}" fat)" ${config} ${archs}
     else
-        # We need to build an x86_64 slice along with i386 in order for it to execute on Apple Silico Macs
+        # We need to build an x86_64 slice along with i386 in order for it to execute on Apple Silicon Macs
         do_autotools_build_sub noarm "$(find_confopt_file "${project_dir}" noarm)" ${config} $(remove arm64 ${archs})
         do_autotools_build_sub no32 "$(find_confopt_file "${project_dir}" no32)" ${config} $(remove i386 ${archs})
         do_lipo noarm i386 no32 "$(remove i386 ${archs})"
