@@ -328,6 +328,9 @@ do_autotools_build() {
 
     local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export PATH
+    
+    local CONFIG_SITE="${BASE_DIR}/config.site"
+    export CONFIG_SITE
 
     PROJECT=$(basename $(pwd))
 
@@ -399,7 +402,7 @@ do_autotools_build_sub() {
 
     setup_environment ${config} ${archs} || die "Failed to setup environment"
 
-    ${SCAN_BUILD} ./configure -C --prefix=${PREFIX} --disable-static --enable-docs --enable-devel-docs --enable-builddocs --with-doxygen --with-xmlto --with-fop $(eval echo $(cat "${confopt_file}")) || die "Could not configure in $(pwd)"
+    ${SCAN_BUILD} ./configure --prefix=${PREFIX} --disable-static --enable-docs --enable-devel-docs --enable-builddocs --with-doxygen --with-xmlto --with-fop $(eval echo $(cat "${confopt_file}")) || die "Could not configure in $(pwd)"
 
     [[ "${SKIP_CLEAN}" == "YES" ]] || ${MAKE} clean || die "Unable to make clean in $(pwd)"
 

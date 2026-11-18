@@ -1,0 +1,5 @@
+if test "$cache_file" = /dev/null; then
+  #  hash=`env|shasum|cut -d ' ' -f1`
+  hash=`echo $DEVELOPER_DIR $SDKROOT $IDENTIFIER_PREFIX $MACOSX_DEPLOYMENT_TARGET $ARCHS_EXEC $ARCHS_LIB $ARCHS_LIB_BINCOMPAT_2_7 $ARCHS_LLVM $MAKE $MAKE_OPTS $PATH $PKG_CONFIG_PATH $ACLOCAL $CPPFLAGS $CC $M4 $PERL $PERL_PATH $SED $CXX $CFLAGS $CXXFLAGS $LDFLAGS $LIBS $host_alias $build_alias|shasum|cut -d ' ' -f1`
+  cache_file=config.cache.$hash
+fi
