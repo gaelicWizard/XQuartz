@@ -1155,9 +1155,9 @@ ${CC} ${CPPFLAGS} ${CFLAGS} -c glxgears.c
 ${CC} ${LDFLAGS} glxinfo.o glinfo_common.o -lGL -lX11 -o glxinfo
 ${CC} ${LDFLAGS} glxgears.o -lGL -lX11 -o glxgears
 
-install -o root -g wheel -m 0755 -d ${DESTDIR}${PREFIX}/bin
-install -o root -g wheel -m 0755 glxinfo ${DESTDIR}${PREFIX}/bin
-install -o root -g wheel -m 0755 glxgears ${DESTDIR}${PREFIX}/bin
+install -m 0755 -d ${DESTDIR}${PREFIX}/bin
+install -m 0755 glxinfo ${DESTDIR}${PREFIX}/bin
+install -m 0755 glxgears ${DESTDIR}${PREFIX}/bin
 
 #sudo install -o root -g wheel -m 0755 -d ${PREFIX}/bin
 #sudo install -o root -g wheel -m 0755 glxinfo ${PREFIX}/bin
