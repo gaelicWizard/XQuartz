@@ -257,7 +257,7 @@ setup_environment() {
 
     export CPPFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${cpp_arch_flags} -I${DESTDIR}${PREFIX}/include -F${DESTDIR}${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks -DFAIL_HARD"
     export CFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${arch_flags} ${OPT_CFLAGS} ${DEBUG_CFLAGS} ${HARDENING_CFLAGS} ${WARNING_CFLAGS}"
-    export LDFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${arch_flags} -L${DESTDIR}${PREFIX}/lib -F${DESTDIR}${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks"
+    export LDFLAGS="${sdkdir:+-isysroot ${sdkdir}} ${arch_flags} -L${DESTDIR}${PREFIX}/lib -F${DESTDIR}${APPLICATION_PATH}/XQuartz.app/Contents/Frameworks -Wl,-headerpad,0x80"
 
     if [[ -d "${SDKROOT_XQUARTZ_OVERLAY}" ]] ; then
         export CPPFLAGS="${CPPFLAGS} -I${SDKROOT_XQUARTZ_OVERLAY}/usr/include"
@@ -375,15 +375,6 @@ do_autotools_build() {
         ;;
     esac
 
-    # Remove LC_RPATHs that the compiler adds for sanitizers (we set our own)
-    find "${DESTDIR}.lipo.fat" -type f | while read file ; do
-        if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
-            if has ${config} ${SANITIZER_CONFIGS} ; then
-                install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
-            fi
-        fi
-    done
-
     ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
     #sudo ditto "${DESTDIR}.lipo.fat" /
 
@@ -409,6 +400,25 @@ do_autotools_build_sub() {
     ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} || die "Could not make in $(pwd)"
 
     ${MAKE} install DESTDIR=${DESTDIR}.lipo.${set} || die "Could not make install in $(pwd)"
+
+    find "${DESTDIR}.lipo.${set}" -type f | while read file ; do
+        if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
+            # Remove LC_RPATHs that the compiler adds for sanitizers (we set our own)
+            if has ${config} ${SANITIZER_CONFIGS} ; then
+                install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
+            fi
+
+            otool -L "${file}" | grep -v 'architecture' | awk '/\/opt\/X11\/lib/ {print $1}' | while read o ; do
+                install_name_tool -change "${o}" "@rpath/${o##*/}" "${file}"
+            done
+
+            if otool -L "${file}" | fgrep -q '@rpath' ; then
+                install_name_tool -add_rpath "@loader_path/../lib" "${file}"
+                #install_name_tool -add_rpath "@executable_path/../lib" "${file}"
+                install_name_tool -add_rpath "/opt/X11/lib" "${file}"
+            fi
+        fi
+    done
 
     # Prune the .la files that we don't want
     rm -f ${DESTDIR}.lipo.${set}${PREFIX}/lib/*.la
@@ -493,16 +503,24 @@ do_meson_build() {
 
 
         # adjust LC_RPATHs
-        if has ${config} ${SANITIZER_CONFIGS} ; then
-            find "${DESTDIR}.lipo.${arch}" -type f | while read file ; do
-                if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
-
-                    # remove LC_RPATHs that the compiler adds for sanitizers (we set our own)
+        find "${DESTDIR}.lipo.${arch}" -type f | while read file ; do
+            if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
+                # remove LC_RPATHs that the compiler adds for sanitizers (we set our own)
+                if has ${config} ${SANITIZER_CONFIGS} ; then
                     install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
-
                 fi
-            done
-        fi
+
+                otool -L "${file}" | grep -v 'architecture' | awk '/\/opt\/X11\/lib/ {print $1}' | while read o ; do
+                    install_name_tool -change "${o}" "@rpath/${o##*/}" "${file}"
+                done
+
+                if otool -L "${file}" | fgrep -q '@rpath' ; then
+                    install_name_tool -add_rpath "@loader_path/../lib" "${file}"
+                    #install_name_tool -add_rpath "@executable_path/../lib" "${file}"
+                    install_name_tool -add_rpath "/opt/X11/lib" "${file}"
+                fi
+            fi
+        done
 
         # Prune the .la files that we don't want
         rm -f "${DESTDIR}.lipo.${arch}${PREFIX}/lib"/*.la
@@ -587,6 +605,26 @@ do_cmake_build() {
         done
         do_lipo ${lipo_args}
     fi
+
+    # adjust LC_RPATHs
+    find "${DESTDIR}.lipo.${arch}" -type f | while read file ; do
+        if /usr/bin/file "${file}" | grep -q "Mach-O" ; then
+            # remove LC_RPATHs that the compiler adds for sanitizers (we set our own)
+            if has ${config} ${SANITIZER_CONFIGS} ; then
+                install_name_tool -delete_rpath "${SANITIZER_LIB_DIR_SRC}" "${file}" >& /dev/null || true
+            fi
+
+            otool -L "${file}" | grep -v 'architecture' | awk '/\/opt\/X11\/lib/ {print $1}' | while read o ; do
+                install_name_tool -change "${o}" "@rpath/${o##*/}" "${file}"
+            done
+
+            if otool -L "${file}" | fgrep -q '@rpath' ; then
+                install_name_tool -add_rpath "@loader_path/../lib" "${file}"
+                #install_name_tool -add_rpath "@executable_path/../lib" "${file}"
+                install_name_tool -add_rpath "/opt/X11/lib" "${file}"
+            fi
+        fi
+    done
 
     ditto "${DESTDIR}.lipo.fat" "${DESTDIR}"
     #sudo ditto "${DESTDIR}.lipo.fat" /
