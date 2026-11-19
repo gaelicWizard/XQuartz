@@ -324,7 +324,7 @@ do_autotools_build() {
 
     local patches_dir="${project_dir}.patches"
 
-    cd "${project_dir}" || die "Could not change directory to ${project_dir}"
+    pushd "${project_dir}" || die "Could not change directory to ${project_dir}"
 
     local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export PATH
@@ -380,7 +380,7 @@ do_autotools_build() {
 
     # Cleanup the universal hack directories
     rm -rf "${DESTDIR}".lipo.*
-}
+popd; }
 
 do_autotools_build_sub() {
     local set=$1
@@ -458,7 +458,7 @@ do_lipo() {
     # Now lipo everything together
     cp -a "${DESTDIR}.lipo.$(first ${sets})" "${DESTDIR}.lipo.fat"
 
-    pushd "${DESTDIR}.lipo.fat"
+    pushd "${DESTDIR}.lipo.fat" && {
     find . -type f | while read file ; do
         if /usr/bin/file "${file}" | egrep -q "(Mach-O|ar archive)" ; then
             unset input_files
@@ -468,6 +468,7 @@ do_lipo() {
             lipo -create -output "${file}" ${input_files} || die "lipo failed to create ${file}"
         fi
     done
+    popd; }
 }
 
 do_meson_build() {
@@ -479,7 +480,7 @@ do_meson_build() {
     local patches_dir="${project_dir}.patches"
     local meson_cross_dir="${BASE_DIR}/meson_support/meson/cross"
 
-    cd "${project_dir}" || die "Could not change directory to ${project_dir}"
+    pushd "${project_dir}" || die "Could not change directory to ${project_dir}"
 
     local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_STD}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export PATH
@@ -541,7 +542,7 @@ do_meson_build() {
 
     # Cleanup the universal hack directories
     rm -rf "${DESTDIR}".lipo.*
-}
+popd; }
 
 do_cmake_build() {
     local project_dir="${BASE_DIR}/${1}"
@@ -553,7 +554,7 @@ do_cmake_build() {
 
     local patches_dir="${project_dir}.patches"
 
-    cd "${project_dir}" || die "Could not change directory to ${project_dir}"
+    pushd "${project_dir}" || die "Could not change directory to ${project_dir}"
 
     local PATH="${DESTDIR}${PREFIX}/bin:${BUILD_TOOLS_PREFIX_CMAKE}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export PATH
@@ -631,7 +632,7 @@ do_cmake_build() {
 
     # Cleanup the universal hack directories
     rm -rf "${DESTDIR}".lipo.*
-}
+popd; }
 
 do_checks() {
     find "${DESTDIR}" -type f | while read file ; do
@@ -943,7 +944,7 @@ fi
 # Build LLVM (arm64/x86_64 only; llvmpipe is not built for the i386 slice, so LLVM isn't needed there)
 
 # Build Sparkle
-cd ${BASE_DIR}/src/Sparkle
+pushd ${BASE_DIR}/src/Sparkle && {
 do_patches ${BASE_DIR}/src/Sparkle.patches
 xcodebuild install -configuration Release \
     ARCHS="${ARCHS_EXEC}" \
@@ -955,6 +956,7 @@ xcodebuild install -configuration Release \
     GCC_GENERATE_DEBUGGING_SYMBOLS=YES
 
 ditto ${DESTDIR}.Sparkle ${DESTDIR}
+popd; }
 
 # Handle flattened nibs
 # ditto: //Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Base.lproj/SUAutomaticUpdateAlert.nib: Is a directory
@@ -1192,8 +1194,9 @@ do_meson_build src/mesa/glu LIB
 do_cmake_build src/freeglut LIB
 
 # Manually build glxinfo and glxgears
+pushd "${BASE_DIR}/src/mesa/demos/src/xdemos" && {
 setup_environment EXEC ${ARCHS_EXEC}
-cd ${BASE_DIR}/src/mesa/demos/src/xdemos
+
 ${CC} ${CPPFLAGS} ${CFLAGS} -c glxinfo.c
 ${CC} ${CPPFLAGS} ${CFLAGS} -c glinfo_common.c
 ${CC} ${CPPFLAGS} ${CFLAGS} -c glxgears.c
@@ -1207,6 +1210,7 @@ install -m 0755 glxgears ${DESTDIR}${PREFIX}/bin
 #sudo install -o root -g wheel -m 0755 -d ${PREFIX}/bin
 #sudo install -o root -g wheel -m 0755 glxinfo ${PREFIX}/bin
 #sudo install -o root -g wheel -m 0755 glxgears ${PREFIX}/bin
+popd; }
 
 do_meson_build src/cairo LIB
 
