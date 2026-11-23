@@ -349,7 +349,7 @@ do_autotools_build() {
     esac
 
     # Cleanup the universal hack directories
-    sudo rm -rf "${DESTDIR}".lipo.*
+    rm -rf "${DESTDIR}".lipo.*
 
     if ! has i386 ${archs} ; then
         # x86_64 and arm64 can always be built together
@@ -490,7 +490,7 @@ do_meson_build() {
     do_patches "${patches_dir}"
 
     # Cleanup the universal hack directories
-    sudo rm -rf "${DESTDIR}".lipo.*
+    rm -rf "${DESTDIR}".lipo.*
 
     # We need to do this hacky dance because of a bug in meson.
     # We need to configure meson as a cross compiler to build arm64 from x86_64
@@ -564,7 +564,7 @@ do_cmake_build() {
     do_patches "${patches_dir}"
 
     # Cleanup the universal hack directories
-    sudo rm -rf "${DESTDIR}".lipo.*
+    rm -rf "${DESTDIR}".lipo.*
 
     for arch in ${archs} ; do
         setup_environment ${config} ${arch} || die "Failed to setup environment"
@@ -724,7 +724,7 @@ do_removals() {
 
 do_strip_sign_dsyms() {
     if [ -d "${PKG_ROOT}" ] ; then
-        sudo rm -rf "${PKG_ROOT}"
+        rm -rf "${PKG_ROOT}"
     fi
 
     if [ -d "${SYM_ROOT}" ] ; then
@@ -786,7 +786,7 @@ do_pkg() {
 
     PKG_OUTPUT="${BASE_DIR}"/XQuartz-${APPLICATION_VERSION_STRING}.pkg
 
-    sudo chown -R root:wheel "${PKG_ROOT}"
+    #sudo chown -R root:wheel "${PKG_ROOT}"
 
     # Initial configuration created like this and then manually edited:
     # pkgbuild --analyze --root "${DESTDIR}" "${PKG_COMPONENT_PLIST}"
