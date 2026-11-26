@@ -757,6 +757,8 @@ do_strip_sign_dsyms() {
         fi
     done
 
+return
+
     find "${PKG_ROOT}/Applications" -type f | while read file ; do
         if /usr/bin/file "${file}" | grep -q "Mach-O" && /usr/bin/file "${file}" | grep -q -v "ar archive" ; then
             dsymutil --out="${SYM_ROOT}"/$(basename "${file}").dSYM "${file}"
@@ -966,6 +968,12 @@ popd; }
 #sudo rm -rf /Applications/Utilities/XQuartz.app/Contents/Frameworks/Sparkle.framework
 #sudo ditto ${DESTDIR}.Sparkle /
 
+
+if true; then
+
+
+
+
 # Bincompat versions of libpng
 do_autotools_build src/libpng/libpng12 LIB_BINCOMPAT_2_7
 do_autotools_build src/libpng/libpng14 LIB_BINCOMPAT_2_7
@@ -1112,7 +1120,9 @@ do_meson_build src/xorg/app/xfsinfo EXEC
 do_meson_build src/xorg/app/xgamma EXEC
 do_meson_build src/xorg/app/xgc EXEC
 do_meson_build src/xorg/app/xhost EXEC
+fi
 do_meson_build src/xorg/app/xinit EXEC
+if true; then
 do_meson_build src/xorg/app/xinput EXEC
 do_meson_build src/xorg/app/xkbcomp EXEC
 do_meson_build src/xorg/app/xkbevd EXEC
@@ -1221,7 +1231,21 @@ do_autotools_build src/xorg/driver/xf86-input-void EXEC
 do_autotools_build src/xorg/driver/xf86-video-dummy EXEC
 do_autotools_build src/xorg/driver/xf86-video-nested EXEC
 
+
+
+
+
+fi # INCREMENTAL
+
+
+
+
+
 do_meson_build src/xquartz/xserver EXEC
+install -m 0755 -d "${DESTDIR}${APPLICATION_PATH}/Xquartz.app/Contents/lib"
+ln -f "${DESTDIR}${PREFIX}/lib/lib"{pixman-1.0,Xfont2.2,Xdmcp.6,AppleWM.7,Xfixes.3,X11.6,Xau.6}.dylib "${DESTDIR}${APPLICATION_PATH}/Xquartz.app/Contents/lib"
+install -m 0755 -d "${DESTDIR}${APPLICATION_PATH}/Xquartz.app/Contents/LaunchServices"
+ln -f "${DESTDIR}${PREFIX}/libexec/privileged_startx" "${DESTDIR}${APPLICATION_PATH}/Xquartz.app/Contents/LaunchServices"
 
 # We want X to be Xquartz by default
 rm -f ${DESTDIR}${PREFIX}/bin/X
