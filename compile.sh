@@ -397,7 +397,7 @@ do_autotools_build_sub() {
 
     [[ "${SKIP_CLEAN}" == "YES" && "${set}" == "fat" ]] || ${MAKE} clean || die "Unable to make clean in $(pwd)"
 
-    ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} || die "Could not make in $(pwd)"
+    ${SCAN_BUILD} ${MAKE} ${MAKE_OPTS} DESTDIR="${DESTDIR}" || die "Could not make in $(pwd)"
 
     ${MAKE} install DESTDIR=${DESTDIR}.lipo.${set} || die "Could not make install in $(pwd)"
 
